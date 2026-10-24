@@ -1,14 +1,13 @@
 const express = require('express')
 const path = require('path')
-const fs = require('fs')
 const jwt = require('jsonwebtoken')
-const db = require('../db')
+const uploadDir = path.join(__dirname,'../uploads/pic_user')
 const bc = require('bcrypt')
+const db = require('../db')
 const JWT_SECRET = process.env.JWT_SECRET
-const uploadDir = path.join(__dirname, '../uploads/pic_user')
 const router = express.Router()
 
-router.post('/regis', async (req, res) => {
+router.post('/regis',async(req,res)=>{
     try {
         const rawForm = req.body?.form
         const form = typeof rawForm === 'string' ? JSON.parse(rawForm) : rawForm
@@ -31,21 +30,19 @@ router.post('/regis', async (req, res) => {
         )
         return res.status(201).json({ id_member: result.insertId, message: 'สมัครสมาชิกสำเร็จ' })
     } catch (error) {
-        console.error('Error regis', error)
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(409).json({ message: 'อีเมลหรือชื่อผู้ใช้นี้ถูกใช้แล้ว' })
-        }
-        return res.status(500).json({ message: 'สมัครสมาชิกไม่สำเร็จ กรุณาตรวจสอบข้อมูลแล้วลองอีกครั้ง' })
+        console.error("Error regis",error);
+        res.status(500).json({message:"Error regis"})
     }
 })
 
-router.post('/login', async (req, res) => {
+router.post('/login',async(req,res)=>{
     try {
-        const { username, password, role } = req.body
-        const [rows] = await db.query('SELECT * FROM tb_member WHERE username = ? AND role = ?', [username, role])
-        const member = rows[0]
-        if (!member || !password || !(await bc.compare(password, member.password))) {
-            return res.status(400).json({ message: 'รหัสผ่านไม่ถูกต้อง' })
+        
+        const {username,password,role} = req.body
+        const [rows] = await db.query(`select * from tb_member where username = ? and role=?`,[username,role])
+        const m = rows[0]
+        if(!m || !password || !(await bc.compare(password,m.password))){
+            return res.status(400).json({message:"รหัสผ่านไม่ถูกต้อง"})
         }
         const token = jwt.sign(
             { id_member: member.id_member, username: member.username, role: member.role },
@@ -54,9 +51,10 @@ router.post('/login', async (req, res) => {
         )
         return res.json({ token, role: member.role })
     } catch (error) {
-        console.error('Error login', error)
-        return res.status(500).json({ message: 'เข้าสู่ระบบไม่สำเร็จ' })
+        console.error("Error login",error);
+        res.status(500).json({message:"Error login"})
     }
+    
 })
 
 module.exports = router
