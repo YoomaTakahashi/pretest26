@@ -35,7 +35,7 @@
                                 </v-col>
                             </v-row>
                         </v-form>
-                        <nuxt-link to="/" class="text-center text-blue text-decoration-none"><p>หากไม่มีบัญชี? สมัครสมาชิก</p></nuxt-link>
+                        <nuxt-link to="/regis" class="text-center text-blue text-decoration-none"><p>หากไม่มีบัญชี? สมัครสมาชิก</p></nuxt-link>
                     </v-card-text>
                 </v-card>
                 

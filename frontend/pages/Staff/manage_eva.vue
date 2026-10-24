@@ -34,12 +34,35 @@
                             <v-row>
                                 <v-col cols="12" md="12">
                                     <center>
-                                        <v-btn class="text-center ma-2" color="primary" type="submit">สมัครสมาชิก</v-btn>
-                                        <v-btn class="text-center ma-2" color="error" type="reset">ยกเลิก</v-btn>
+                                        <v-btn class="text-center ma-2" color="primary" type="submit">{{ form.id_member ? 'อัปเดต':'บันทึก' }}</v-btn>
+                                        <v-btn class="text-center ma-2" color="error" @click="reset()">ยกเลิก</v-btn>
                                     </center> 
                                 </v-col>
                             </v-row>
                         </v-form>
+                        <v-text-field label="ค้นหา" placeholder="ค้นหา" v-model="search" prepend-inner-icon="mdi-magnify"></v-text-field>
+                        <v-table>
+                            <thead>
+                                <tr>
+                                    <th class="border text-center">ลำดับ</th>
+                                    <th class="border text-center">ชื่อ-สกุล</th>
+                                    <th class="border text-center">อีเมล</th>
+                                    <th class="border text-center">ชื่อผู้ใช้</th>
+                                    <th class="border text-center">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(m,index) in result" :key="m.id_member">
+                                    <td class="border text-center">{{ index+1 }}</td>
+                                    <td class="border text-center">{{ m.fname }} {{ m.lname }}</td>
+                                    <td class="border text-center">{{ m.email }}</td>
+                                    <td class="border text-center">{{ m.username }}</td>
+                                    <td class="border text-center">
+                                        
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </v-table>
                     </v-card-text>
                 </v-card>
                 
@@ -54,18 +77,12 @@ import axios from 'axios'
 import { api } from '~/API/base'
 
 
-definePageMeta({
-    layout: false
-})
-const pic_user = ref<File | null>(null)
 const error = ref<Record<string,string>>({})
-const conP = ref('')
-const typeR = ['ฝ่ายบุคลากร','ผู้รับการประเมินผล','กรรมการประเมิน']
+const typeR = ['ผู้รับการประเมินผล']
 const show = ref(false)
-const show2 = ref(false)
 const showPw = ref(false)
-const showPw2 = ref(false)
 const form = ref({
+    id_member:null,
     fname:'',
     lname:'',
     email:'',
@@ -73,6 +90,18 @@ const form = ref({
     password:'',
     role:''
 })
+
+const reset = ()=>{
+    form.value = {
+        id_member:null,
+        fname:'',
+        lname:'',
+        email:'',
+        username:'',
+        password:'',
+        role:''
+    }
+}
 
 const emailRegex = /^[^\s]+@[^\s]+\.[^\s]{2,}$/i
 
@@ -91,9 +120,6 @@ function validateForm(){
 
     if(!f.password.trim())error.value.password ='กรุณากรอกรหัสผ่าน'
     else if(f.password.trim().length < 6)error.value.password ='รหัสผ่านต้องยาว 6 ตัวอักษร'
-    else if(f.password.trim() !== conP.value.trim())error.value.conP ='รหัสผ่านไม่ตรงกัน'
-
-    if(!conP.value.trim())error.value.conP ='กรุณายืนยันรหัสผ่าน'
 
     if(!f.role.trim())error.value.role ='กรุณาเลือกประเภทสมาชิก'
 
@@ -103,9 +129,7 @@ function validateForm(){
 
 const saveMember = async()=>{
     if(!validateForm())return
-    const formdata = new FormData
-    formdata.append('form',JSON.stringify(form.value))
-    formdata.append('pic_user',pic_user.value!)
+    const f= form.value
     try {
         
         await axios.post(`${api}/auth/regis`,formdata)
