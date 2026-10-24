@@ -1,13 +1,13 @@
 const express = require('express')
 const path = require('path')
-const JWT_SECRET = process.env.JWT_SECRET
 const jwt = require('jsonwebtoken')
-const db = require('../db')
-const bc = require('bcrypt')
 const uploadDir = path.join(__dirname,'../uploads/pic_user')
+const bc = require('bcrypt')
+const db = require('../db')
+const JWT_SECRET = process.env.JWT_SECRET
 const router = express.Router()
 
-router.post('/regis',async (req,res) => {
+router.post('/regis',async(req,res)=>{
     try {
         
         const form = JSON.parse(req.body.form)
@@ -22,15 +22,15 @@ router.post('/regis',async (req,res) => {
         res.json(rows)
     } catch (error) {
         console.error("Error regis",error);
-        
+        res.status(500).json({message:"Error regis"})
     }
 })
 
-router.post('/login',async (req,res) => {
+router.post('/login',async(req,res)=>{
     try {
         
         const {username,password,role} = req.body
-        const [rows] = await db.query(`select * from tb_member where username=? and role=?`,[username,role])
+        const [rows] = await db.query(`select * from tb_member where username = ? and role=?`,[username,role])
         const m = rows[0]
         if(!m || !password || !(await bc.compare(password,m.password))){
             return res.status(400).json({message:"รหัสผ่านไม่ถูกต้อง"})
@@ -41,8 +41,9 @@ router.post('/login',async (req,res) => {
         res.json({token,role:m.role})
     } catch (error) {
         console.error("Error login",error);
-        
+        res.status(500).json({message:"Error login"})
     }
+    
 })
 
 module.exports = router

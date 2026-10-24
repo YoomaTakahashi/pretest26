@@ -58,8 +58,14 @@
                                     <td class="border text-center">{{ m.email }}</td>
                                     <td class="border text-center">{{ m.username }}</td>
                                     <td class="border text-center">
-                                        
+                                        <center>
+                                            <v-btn class="text-center text-white ma-2" color="warning" @click="edit(m)" size="small">แก้ไข</v-btn>
+                                            <v-btn class="text-center text-white ma-2" color="warning" @click="del(m.id_member)" size="small">ลบ</v-btn>
+                                        </center>
                                     </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center text-red" colspan="12" v-if="result.length">ไม่พบข้อมูล</td>
                                 </tr>
                             </tbody>
                         </v-table>
@@ -74,7 +80,7 @@
 
 <script setup lang="ts">
 import axios from 'axios'
-import { api } from '~/API/base'
+import { api, staff } from '~/API/base'
 
 
 const error = ref<Record<string,string>>({})
@@ -102,9 +108,9 @@ const reset = ()=>{
         role:''
     }
 }
-
+const dataResult = ref([])
 const emailRegex = /^[^\s]+@[^\s]+\.[^\s]{2,}$/i
-
+const search = ref('')
 function validateForm(){
 
     const f = form.value
@@ -127,20 +133,73 @@ function validateForm(){
 
 }
 
+const token = import.meta.client ? localStorage.getItem('token'):null
 const saveMember = async()=>{
     if(!validateForm())return
     const f= form.value
+    const payload = {
+        fname:f.fname,
+        lname:f.lname,
+        email:f.email,
+        username:f.username,
+        password:f.password,
+        role:f.role,
+        ...(f.password ? {password:f.password}:null)
+    }
     try {
-        
-        await axios.post(`${api}/auth/regis`,formdata)
+        f.id_member
+        ? await axios.put(`${staff}/member/update/${f.id_member}`,payload,{headers:{Authorization:`Bearer ${token}`}})
+        : await axios.post(`${staff}/member/save`,{...payload,password:f.password},{headers:{Authorization:`Bearer ${token}`}})
+        await reset()
+        await fetch()
         alert('ทำรายการสำเร็จ')
-        navigateTo('/',{replace:true})
     } catch (error) {
-        console.error("Error regis",error);
+        console.error("Error save",error);
         
     }
 }
 
+const fetch = async()=>{
+    try {
+        
+        const res = await axios.get(`${staff}/member/showE`,{headers:{Authorization:`Bearer ${token}`}})
+        dataResult.value = res.data
+
+    } catch (error) {
+        console.error("Error get",error);
+        
+    }
+}
+
+const result = computed(()=>{
+    if(!search.value)return dataResult.value
+
+    const s = search.value.toLowerCase()
+
+    return dataResult.value.filter((item:any)=>{
+        return(
+            item.username.toLowerCase().includes(s)
+        )
+    })
+})
+
+const edit = (item:any)=>{
+    form.value = {...item}
+}
+
+const del = async(id_member)=>{
+    if(!confirm('ต้องการลบข้อมูลชุดนี้ใช่หรือไม่'))return
+    try {
+        await axios.delete(`${staff}/member/delete/${id_member}`,{headers:{Authorization:`Bearer ${token}`}})
+        await reset()
+        await fetch()
+    } catch (error) {
+        console.error("Error delete",error);
+        
+    }
+}
+
+onMounted(fetch)
 
 </script>
 
