@@ -2,7 +2,7 @@
     <v-container>
         <v-row justify="center">
 
-            <v-col cols="12">
+            <v-col cols="12" md="8">
 
                 <v-card color="#7d0c14">
                     <v-card-title>
@@ -16,10 +16,10 @@
                         <v-alert v-if="error" variant="tonal" type="error">{{ error }}</v-alert>
                         <v-form @submit.prevent="login">
                             <v-row>
-                                <v-col cols="12" md="6">
+                                <v-col cols="12" md="12">
                                     <v-text-field v-model="username" label="ชื่อผู้ใช้" prepend-inner-icon="mdi-account"></v-text-field>
                                 </v-col>
-                                <v-col cols="12" md="6">
+                                <v-col cols="12" md="12">
                                     <v-text-field v-model="password" label="รหัสผ่าน" :prepend-inner-icon="show ? 'mdi-eye':'mdi-eye-off'" :type="showPw ? 'text':'password'" @click:prepend-inner="show = !show , showPw = !showPw"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" md="12">

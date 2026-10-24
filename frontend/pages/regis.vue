@@ -2,7 +2,7 @@
     <v-container>
         <v-row justify="center">
 
-            <v-col cols="12">
+            <v-col cols="12" md="12">
 
                 <v-card color="#7d0c14">
                     <v-card-title>
@@ -29,7 +29,7 @@
                                     <v-text-field v-model="form.password" label="รหัสผ่าน" :error-messages="error.password" :prepend-inner-icon="show ? 'mdi-eye':'mdi-eye-off'" :type="showPw ? 'text':'password'" @click:prepend-inner="show = !show , showPw = !showPw"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" md="6">
-                                    <v-text-field v-model="conP" label="รหัสผ่าน" :error-messages="error.conP" :prepend-inner-icon="show2 ? 'mdi-eye':'mdi-eye-off'" :type="showPw2 ? 'text':'password'" @click:prepend-inner="show2 = !show2 , showPw2 = !showPw2"></v-text-field>
+                                    <v-text-field v-model="conP" label="ยืนยันรหัสผ่าน" :error-messages="error.conP" :prepend-inner-icon="show2 ? 'mdi-eye':'mdi-eye-off'" :type="showPw2 ? 'text':'password'" @click:prepend-inner="show2 = !show2 , showPw2 = !showPw2"></v-text-field>
                                 </v-col>
                                 <v-col cols="12" md="6">
                                     <v-select v-model="form.role" label="ประเภทสมาชิก" :error-messages="error.role" prepend-inner-icon="mdi-account-group" :items="typeR"></v-select>
