@@ -13,11 +13,12 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     networks: ["app-networks"]
-  
+
   backend:
     build: ./backend
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     container_name: Backend_Container
     ports: ["3001:3001"]
     command: npx -y nodemon -L index.js
@@ -37,7 +38,8 @@ services:
   phpmyadmin:
     image: phpmyadmin
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     container_name: PMA_Container
     ports: ["8080:80"]
     restart: always
@@ -50,14 +52,20 @@ services:
   mysql:
     image: mysql:8.0
     container_name: MYSQL_Container
-    ports: ["3305:3307"]
+    ports: ["3305:3306"]
     restart: always
     volumes:
       - ./database:/docker-entrypoint-initdb.d
-      - mysql_data:/var/lib/mysql
+      - mysql_data_fresh:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: pretest26
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
     networks: ["app-networks"]
 
 networks:
@@ -68,3 +76,4 @@ volumes:
   frontend_node_modules:
   backend_node_modules:
   mysql_data:
+  mysql_data_fresh:
