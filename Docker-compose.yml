@@ -48,9 +48,9 @@ services:
     networks: ["app-networks"]
 
   mysql:
-    image: mysql
+    image: mysql:8.0
     container_name: MYSQL_Container
-    ports: ["3305:3307"]
+    ports: ["3305:3306"]
     restart: always
     volumes:
       - ./database:/docker-entrypoint-initdb.d
